@@ -12,16 +12,16 @@ mixin _$AssetController on AssetControllerBase, Store {
   late final _$_statusAtom =
       Atom(name: 'AssetControllerBase._status', context: context);
 
-  AssetStatus get status {
+  AssetStateStatus get status {
     _$_statusAtom.reportRead();
     return super._status;
   }
 
   @override
-  AssetStatus get _status => status;
+  AssetStateStatus get _status => status;
 
   @override
-  set _status(AssetStatus value) {
+  set _status(AssetStateStatus value) {
     _$_statusAtom.reportWrite(value, super._status, () {
       super._status = value;
     });
@@ -117,10 +117,34 @@ mixin _$AssetController on AssetControllerBase, Store {
     });
   }
 
+  late final _$assetStatusAtom =
+      Atom(name: 'AssetControllerBase.assetStatus', context: context);
+
+  @override
+  AssetStatus get assetStatus {
+    _$assetStatusAtom.reportRead();
+    return super.assetStatus;
+  }
+
+  @override
+  set assetStatus(AssetStatus value) {
+    _$assetStatusAtom.reportWrite(value, super.assetStatus, () {
+      super.assetStatus = value;
+    });
+  }
+
+  late final _$setAssetStatusAsyncAction =
+      AsyncAction('AssetControllerBase.setAssetStatus', context: context);
+
+  @override
+  Future<void> setAssetStatus(AssetStatus value) {
+    return _$setAssetStatusAsyncAction.run(() => super.setAssetStatus(value));
+  }
+
   @override
   String toString() {
     return '''
-
+assetStatus: ${assetStatus}
     ''';
   }
 }

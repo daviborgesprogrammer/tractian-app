@@ -28,15 +28,15 @@ class _AssetPageState extends State<AssetPage> with Loader, Messages {
       // final id = ModalRoute.of(context)!.settings.arguments as String;
       statusDisposer = reaction((_) => controller.status, (status) async {
         switch (status) {
-          case AssetStatus.initial:
+          case AssetStateStatus.initial:
             break;
-          case AssetStatus.loading:
+          case AssetStateStatus.loading:
             showLoader();
             break;
-          case AssetStatus.loaded:
+          case AssetStateStatus.loaded:
             hideLoader();
             break;
-          case AssetStatus.error:
+          case AssetStateStatus.error:
             hideLoader();
             showError(controller.errorMessage ?? '');
         }
@@ -85,22 +85,32 @@ class _AssetPageState extends State<AssetPage> with Loader, Messages {
                         bottom: BorderSide(width: 1, color: Color(0XFFEAEEF2)),
                       ),
                     ),
-                    child: const Column(
+                    child: Column(
                       children: [
-                        SearchField(),
-                        SizedBox(height: 8),
+                        const SearchField(),
+                        const SizedBox(height: 8),
                         Row(
                           children: [
                             FilterButton(
                               iconUrl: 'assets/svg/bolt.svg',
                               label: 'Sensor de Energia',
-                              selected: true,
+                              selected:
+                                  controller.assetStatus == AssetStatus.energy,
+                              onTap: () async {
+                                await controller
+                                    .setAssetStatus(AssetStatus.energy);
+                              },
                             ),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             FilterButton(
                               iconUrl: 'assets/svg/exclamationCircle.svg',
                               label: 'Crítico',
-                              selected: false,
+                              selected: controller.assetStatus ==
+                                  AssetStatus.critical,
+                              onTap: () async {
+                                await controller
+                                    .setAssetStatus(AssetStatus.critical);
+                              },
                             ),
                           ],
                         ),

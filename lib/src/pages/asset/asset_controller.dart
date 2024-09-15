@@ -8,11 +8,17 @@ import '../../services/assets/assets_service.dart';
 import '../../services/location/location_service.dart';
 part 'asset_controller.g.dart';
 
-enum AssetStatus {
+enum AssetStateStatus {
   initial,
   loading,
   loaded,
   error,
+}
+
+enum AssetStatus {
+  critical,
+  energy,
+  none,
 }
 
 class AssetController = AssetControllerBase with _$AssetController;
@@ -21,7 +27,7 @@ abstract class AssetControllerBase with Store {
   final _locationService = GetIt.I<LocationService>();
   final _assetService = GetIt.I<AssetsService>();
   @readonly
-  var _status = AssetStatus.initial;
+  var _status = AssetStateStatus.initial;
 
   @readonly
   String? _errorMessage;
@@ -39,11 +45,11 @@ abstract class AssetControllerBase with Store {
   var _tree = <Tree>[];
 
   Future<void> fetch(String id) async {
-    _status = AssetStatus.loading;
+    _status = AssetStateStatus.loading;
     await fetchLocations(id);
     await fetchAssets(id);
     await buildTree();
-    _status = AssetStatus.loaded;
+    _status = AssetStateStatus.loaded;
   }
 
   Future<void> fetchLocations(String id) async {
@@ -52,6 +58,14 @@ abstract class AssetControllerBase with Store {
 
   Future<void> fetchAssets(String id) async {
     _assets = await _assetService.fetchAssets(id);
+  }
+
+  @observable
+  AssetStatus assetStatus = AssetStatus.none;
+
+  @action
+  Future<void> setAssetStatus(AssetStatus value) async {
+    assetStatus = assetStatus == value ? AssetStatus.none : value;
   }
 
   Future<void> buildTree() async {
