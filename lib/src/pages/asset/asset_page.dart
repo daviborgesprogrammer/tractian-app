@@ -3,6 +3,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mobx/mobx.dart';
 
+import '../../core/ui/helpers/debouncer.dart';
 import '../../core/ui/helpers/loader.dart';
 import '../../core/ui/helpers/messages.dart';
 import '../../models/tree.dart';
@@ -21,6 +22,7 @@ class AssetPage extends StatefulWidget {
 class _AssetPageState extends State<AssetPage> with Loader, Messages {
   late final ReactionDisposer statusDisposer;
   final AssetController controller = AssetController();
+  final debouncer = Debouncer(milliseconds: 500);
 
   @override
   void initState() {
@@ -87,7 +89,13 @@ class _AssetPageState extends State<AssetPage> with Loader, Messages {
                     ),
                     child: Column(
                       children: [
-                        const SearchField(),
+                        SearchField(
+                          onChanged: (value) {
+                            debouncer.call(() {
+                              controller.setQuery(value);
+                            });
+                          },
+                        ),
                         const SizedBox(height: 8),
                         Row(
                           children: [

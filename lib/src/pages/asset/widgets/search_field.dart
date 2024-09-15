@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class SearchField extends StatelessWidget {
+  final ValueChanged<String>? onChanged;
   const SearchField({
+    this.onChanged,
     super.key,
   });
 
@@ -17,6 +19,7 @@ class SearchField extends StatelessWidget {
         padding: const EdgeInsets.only(left: 12),
         child: TextFormField(
           textAlignVertical: TextAlignVertical.center,
+          onChanged: onChanged,
           decoration: InputDecoration(
             prefixIcon: const Icon(
               Icons.search,

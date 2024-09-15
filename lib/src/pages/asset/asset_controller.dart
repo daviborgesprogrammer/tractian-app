@@ -50,6 +50,14 @@ abstract class AssetControllerBase with Store {
   @readonly
   var _tree = <Tree>[];
 
+  @observable
+  String? query;
+
+  @action
+  void setQuery(String value) {
+    query = value;
+  };
+
   Future<void> fetch(String id) async {
     _status = AssetStateStatus.loading;
     await fetchLocations(id);
