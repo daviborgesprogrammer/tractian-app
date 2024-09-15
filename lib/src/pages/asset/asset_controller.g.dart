@@ -45,6 +45,24 @@ mixin _$AssetController on AssetControllerBase, Store {
     });
   }
 
+  late final _$_locationsFilterAtom =
+      Atom(name: 'AssetControllerBase._locationsFilter', context: context);
+
+  List<Location> get locationsFilter {
+    _$_locationsFilterAtom.reportRead();
+    return super._locationsFilter;
+  }
+
+  @override
+  List<Location> get _locationsFilter => locationsFilter;
+
+  @override
+  set _locationsFilter(List<Location> value) {
+    _$_locationsFilterAtom.reportWrite(value, super._locationsFilter, () {
+      super._locationsFilter = value;
+    });
+  }
+
   late final _$_locationsAtom =
       Atom(name: 'AssetControllerBase._locations', context: context);
 
@@ -60,6 +78,24 @@ mixin _$AssetController on AssetControllerBase, Store {
   set _locations(List<Location> value) {
     _$_locationsAtom.reportWrite(value, super._locations, () {
       super._locations = value;
+    });
+  }
+
+  late final _$_assetsFilterAtom =
+      Atom(name: 'AssetControllerBase._assetsFilter', context: context);
+
+  List<Asset> get assetsFilter {
+    _$_assetsFilterAtom.reportRead();
+    return super._assetsFilter;
+  }
+
+  @override
+  List<Asset> get _assetsFilter => assetsFilter;
+
+  @override
+  set _assetsFilter(List<Asset> value) {
+    _$_assetsFilterAtom.reportWrite(value, super._assetsFilter, () {
+      super._assetsFilter = value;
     });
   }
 

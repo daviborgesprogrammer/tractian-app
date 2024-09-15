@@ -25,7 +25,7 @@ class _AssetPageState extends State<AssetPage> with Loader, Messages {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // final id = ModalRoute.of(context)!.settings.arguments as String;
+      final id = ModalRoute.of(context)!.settings.arguments as String;
       statusDisposer = reaction((_) => controller.status, (status) async {
         switch (status) {
           case AssetStateStatus.initial:
@@ -41,8 +41,8 @@ class _AssetPageState extends State<AssetPage> with Loader, Messages {
             showError(controller.errorMessage ?? '');
         }
       });
-      // controller.fetch(id);
-      controller.fetch('662fd0ee639069143a8fc387');
+      controller.fetch(id);
+      // controller.fetch('662fd0ee639069143a8fc387');
     });
     super.initState();
   }

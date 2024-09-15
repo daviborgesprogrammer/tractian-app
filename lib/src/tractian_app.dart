@@ -13,10 +13,9 @@ class TractianApp extends StatelessWidget {
       title: 'Tractian',
       debugShowCheckedModeBanner: false,
       theme: ThemeConfig.theme,
-      initialRoute: '/asset',
+      initialRoute: '/home',
       routes: {
         '/home': (_) => const HomePage(),
-        // '/asset': (_) => const AssetPage(),
         '/asset': (_) => const AssetPage(),
       },
     );

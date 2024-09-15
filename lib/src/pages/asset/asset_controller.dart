@@ -33,7 +33,13 @@ abstract class AssetControllerBase with Store {
   String? _errorMessage;
 
   @readonly
+  var _locationsFilter = <Location>[];
+
+  @readonly
   var _locations = <Location>[];
+
+  @readonly
+  var _assetsFilter = <Asset>[];
 
   @readonly
   var _assets = <Asset>[];
@@ -54,10 +60,12 @@ abstract class AssetControllerBase with Store {
 
   Future<void> fetchLocations(String id) async {
     _locations = await _locationService.fetchLocations(id);
+    _locationsFilter = [..._locations];
   }
 
   Future<void> fetchAssets(String id) async {
     _assets = await _assetService.fetchAssets(id);
+    _assetsFilter = [..._assets];
   }
 
   @observable
@@ -66,29 +74,81 @@ abstract class AssetControllerBase with Store {
   @action
   Future<void> setAssetStatus(AssetStatus value) async {
     assetStatus = assetStatus == value ? AssetStatus.none : value;
+
+    final String? removeQuery = switch (assetStatus) {
+      AssetStatus.critical => 'operating',
+      AssetStatus.energy => 'alert',
+      _ => null
+    };
+    _assetsFilter = [..._assets];
+    _locationsFilter = [..._locations];
+
+    if (assetStatus != AssetStatus.none) {
+      final toRemove =
+          _assetsFilter.where((i) => i.status == removeQuery).toList();
+      for (var rm in toRemove) {
+        await removeParentTree(rm);
+      }
+      for (var t in _tree) {
+        if (t.subTree == null) {
+          final rmLoc = _locationsFilter.where((l) => l.id == t.id);
+
+          if (rmLoc.isNotEmpty) {
+            _locationsFilter.remove(rmLoc.first);
+          }
+        }
+      }
+    }
+
+    buildTree();
+  }
+
+  Future<void> removeParentTree(Asset item) async {
+    _assetsFilter.remove(item);
+    _removeParents(item);
+  }
+
+  void _removeParents(Asset child) {
+    final parent =
+        _assetsFilter.where((asset) => asset.id == child.parentId).firstOrNull;
+
+    if (parent != null) {
+      _assetsFilter.remove(parent);
+      _removeParents(parent);
+      if (parent.parentId == null && parent.locationId != null) {
+        final parentLocation = _locationsFilter
+            .where((location) => location.id == parent.locationId)
+            .firstOrNull;
+        if (parentLocation != null) {
+          _locationsFilter.remove(parentLocation);
+          if (parentLocation.parentId != null) {
+            final paParentLocation = _locationsFilter
+                .where((location) => location.id == parentLocation.parentId)
+                .firstOrNull;
+            if (paParentLocation != null) {
+              _locationsFilter.remove(paParentLocation);
+            }
+          }
+        }
+      }
+    }
   }
 
   Future<void> buildTree() async {
     await buildLocation();
     await buildAsset();
-    // for (var tree in _tree) {
-    //   if (tree.subTree != null)
-    //     for (var tree1 in tree.subTree!) {
-    //       if (tree1.subTree != null)
-    //         for (var tree2 in tree1.subTree!) {
-    //         }
-    //     }
-    // }
   }
+
+  Future<void> buildLocation2() async {}
 
   Future<void> buildLocation() async {
     final List<Tree> auxTree = [];
-    for (var loc in _locations) {
+    for (var loc in _locationsFilter) {
       if (loc.parentId == null) {
         auxTree.add(Tree.fromLocation(loc));
       }
     }
-    final hasParentItems = _locations.where((at) => at.parentId != null);
+    final hasParentItems = _locationsFilter.where((at) => at.parentId != null);
 
     for (var at in auxTree) {
       final child = hasParentItems.where((hpi) => hpi.parentId == at.id);
@@ -102,12 +162,12 @@ abstract class AssetControllerBase with Store {
   }
 
   Future<void> buildAsset() async {
-    final unlike = _assets
+    final unlike = _assetsFilter
         .where((a) => a.parentId == null && a.locationId == null)
         .toList();
     _tree.addAll(unlike.map((c) => Tree.fromAsset(c)).toList());
 
-    final hasLocation = _assets
+    final hasLocation = _assetsFilter
         .where((a) => a.locationId != null && a.sensorId == null)
         .map((m) => Tree.fromAsset(m))
         .toList();
@@ -115,7 +175,7 @@ abstract class AssetControllerBase with Store {
       seekTreeAssetLocation(hl, tree: _tree);
     }
 
-    final hasParent = _assets
+    final hasParent = _assetsFilter
         .where((a) => a.parentId != null && a.sensorId == null)
         .map((m) => Tree.fromAsset(m))
         .toList();
@@ -124,7 +184,7 @@ abstract class AssetControllerBase with Store {
       seekTreeAsset(hp, tree: _tree);
     }
 
-    final getComponent = _assets
+    final getComponent = _assetsFilter
         .where((a) => a.sensorType != null)
         .map((m) => Tree.fromAsset(m))
         .toList();

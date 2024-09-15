@@ -84,7 +84,7 @@ class _TreeTileState extends State<TreeTile> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: Text(
-                        item.name?.toUpperCase() ?? '',
+                        item.name ?? '',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Color(0XFF17192D),
