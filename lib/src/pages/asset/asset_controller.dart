@@ -56,7 +56,7 @@ abstract class AssetControllerBase with Store {
   @action
   void setQuery(String value) {
     query = value;
-  };
+  }
 
   Future<void> fetch(String id) async {
     _status = AssetStateStatus.loading;
@@ -147,27 +147,54 @@ abstract class AssetControllerBase with Store {
     await buildAsset();
   }
 
-  Future<void> buildLocation2() async {}
-
   Future<void> buildLocation() async {
-    final List<Tree> auxTree = [];
-    for (var loc in _locationsFilter) {
-      if (loc.parentId == null) {
-        auxTree.add(Tree.fromLocation(loc));
-      }
-    }
-    final hasParentItems = _locationsFilter.where((at) => at.parentId != null);
+    final List<Tree> auxTree = _locationsFilter
+        .where((loc) => loc.parentId == null)
+        .map((loc) => Tree.fromLocation(loc))
+        .toList();
 
-    for (var at in auxTree) {
-      final child = hasParentItems.where((hpi) => hpi.parentId == at.id);
-      if (child.isNotEmpty) {
-        at.subTree ??= [];
-        at.subTree?.addAll(child.map((c) => Tree.fromLocation(c)).toList());
-        break;
-      }
+    for (var tree in auxTree) {
+      _buildSubTree(tree);
     }
+
     _tree = [...auxTree];
   }
+
+  void _buildSubTree(Tree parentTree) {
+    final children = _locationsFilter
+        .where((loc) => loc.parentId == parentTree.id)
+        .map((loc) => Tree.fromLocation(loc))
+        .toList();
+
+    if (children.isNotEmpty) {
+      parentTree.subTree ??= [];
+      parentTree.subTree!.addAll(children);
+
+      for (var child in children) {
+        _buildSubTree(child);
+      }
+    }
+  }
+
+  // Future<void> buildLocation() async {
+  //   final List<Tree> auxTree = [];
+  //   for (var loc in _locationsFilter) {
+  //     if (loc.parentId == null) {
+  //       auxTree.add(Tree.fromLocation(loc));
+  //     }
+  //   }
+  //   final hasParentItems = _locationsFilter.where((at) => at.parentId != null);
+
+  //   for (var at in auxTree) {
+  //     final child = hasParentItems.where((hpi) => hpi.parentId == at.id);
+  //     if (child.isNotEmpty) {
+  //       at.subTree ??= [];
+  //       at.subTree?.addAll(child.map((c) => Tree.fromLocation(c)).toList());
+  //       break;
+  //     }
+  //   }
+  //   _tree = [...auxTree];
+  // }
 
   Future<void> buildAsset() async {
     final unlike = _assetsFilter
@@ -231,7 +258,7 @@ abstract class AssetControllerBase with Store {
       if (treeNode.treeType == TreeType.asset && treeNode.id == item.parentId) {
         treeNode.subTree ??= [];
         treeNode.subTree!.add(item);
-        return; // Interrompe a busca após a inserção
+        return;
       }
 
       if (treeNode.subTree != null && treeNode.subTree!.isNotEmpty) {
