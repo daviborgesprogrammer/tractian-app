@@ -28,7 +28,7 @@ abstract class HomeControllerBase with Store {
   Future<void> fetchCompanies() async {
     try {
       _status = HomeStatus.loading;
-      _companies = await _companyService.fetchCompanies();
+      _companies = await _companyService.fetchCompanies(offline: true);
       _status = HomeStatus.loaded;
     } catch (e) {
       _status = HomeStatus.error;

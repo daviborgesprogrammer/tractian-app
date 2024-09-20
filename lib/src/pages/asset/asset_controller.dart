@@ -67,12 +67,12 @@ abstract class AssetControllerBase with Store {
   }
 
   Future<void> fetchLocations(String id) async {
-    _locations = await _locationService.fetchLocations(id);
+    _locations = await _locationService.fetchLocations(id, offline: true);
     _locationsFilter = [..._locations];
   }
 
   Future<void> fetchAssets(String id) async {
-    _assets = await _assetService.fetchAssets(id);
+    _assets = await _assetService.fetchAssets(id, offline: true);
     _assetsFilter = [..._assets];
   }
 
@@ -175,26 +175,6 @@ abstract class AssetControllerBase with Store {
       }
     }
   }
-
-  // Future<void> buildLocation() async {
-  //   final List<Tree> auxTree = [];
-  //   for (var loc in _locationsFilter) {
-  //     if (loc.parentId == null) {
-  //       auxTree.add(Tree.fromLocation(loc));
-  //     }
-  //   }
-  //   final hasParentItems = _locationsFilter.where((at) => at.parentId != null);
-
-  //   for (var at in auxTree) {
-  //     final child = hasParentItems.where((hpi) => hpi.parentId == at.id);
-  //     if (child.isNotEmpty) {
-  //       at.subTree ??= [];
-  //       at.subTree?.addAll(child.map((c) => Tree.fromLocation(c)).toList());
-  //       break;
-  //     }
-  //   }
-  //   _tree = [...auxTree];
-  // }
 
   Future<void> buildAsset() async {
     final unlike = _assetsFilter

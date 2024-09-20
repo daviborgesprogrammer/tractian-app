@@ -44,7 +44,6 @@ class _AssetPageState extends State<AssetPage> with Loader, Messages {
         }
       });
       controller.fetch(id);
-      // controller.fetch('662fd0ee639069143a8fc387');
     });
     super.initState();
   }
