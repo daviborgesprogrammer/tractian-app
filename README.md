@@ -15,7 +15,7 @@ Assets are essential to the operation of the industry, it can include everything
 - Components are typically associated with an asset, but the customer **may** want to add components without an asset as a parent **or** with a location as a parent
 - Components typically include **vibration** or **energy** sensors, and they have a **operating** or **alert** status
 - On the tree, components are represented by this icon:
-![component](../assets/icons/component.png)
+![component](assets/icons/component.png)
     
 
 **Assets/Sub-Assets**
@@ -25,14 +25,14 @@ Assets are essential to the operation of the industry, it can include everything
 - Assets are typically associated with a location, but the customer **may** want to add assets without specifying a location as a parent.
 - You can know that an item is a **asset**, if they have another assets or components as children.
 - On the tree, assets are represented by this icon:
-![asset](../assets/icons/asset.png)
+![asset](assets/icons/asset.png)
     
 
 **Locations/Sub-Locations**
 
 - Locations represent the places where the assets are located. For very large locations, the customer may want to split them to keep their hierarchy more organized. Therefore, locations may contain N sub-locations.
 - On the tree, locations are represented by this icon:
-![location](../assets/icons/location.png)
+![location](assets/icons/location.png)
 
 In summary, a tree may like look this:
 
