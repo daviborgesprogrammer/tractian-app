@@ -33,22 +33,28 @@ abstract class AssetControllerBase with Store {
   String? _errorMessage;
 
   @readonly
-  var _locationsFilter = <Location>[];
+  var _locations = <Location>[];
 
   @readonly
-  var _locations = <Location>[];
+  var _assets = <Asset>[];
+
+  //------Filters------
+
+  @readonly
+  var _locationsFilter = <Location>[];
 
   @readonly
   var _assetsFilter = <Asset>[];
 
-  @readonly
-  var _assets = <Asset>[];
+  //-----Tree-----
 
   @readonly
   var _listTree = <Map>[];
 
   @readonly
   var _tree = <Tree>[];
+
+  //-----Query-----
 
   @observable
   String? query;
@@ -57,6 +63,9 @@ abstract class AssetControllerBase with Store {
   void setQuery(String value) {
     query = value;
   }
+
+  @observable
+  AssetStatus assetStatus = AssetStatus.none;
 
   Future<void> fetch(String id) async {
     _status = AssetStateStatus.loading;
@@ -76,104 +85,37 @@ abstract class AssetControllerBase with Store {
     _assetsFilter = [..._assets];
   }
 
-  @observable
-  AssetStatus assetStatus = AssetStatus.none;
-
-  @action
-  Future<void> setAssetStatus(AssetStatus value) async {
-    assetStatus = assetStatus == value ? AssetStatus.none : value;
-
-    final String? removeQuery = switch (assetStatus) {
-      AssetStatus.critical => 'operating',
-      AssetStatus.energy => 'alert',
-      _ => null
-    };
-    _assetsFilter = [..._assets];
-    _locationsFilter = [..._locations];
-
-    if (assetStatus != AssetStatus.none) {
-      final toRemove =
-          _assetsFilter.where((i) => i.status == removeQuery).toList();
-      for (var rm in toRemove) {
-        await removeParentTree(rm);
-      }
-      for (var t in _tree) {
-        if (t.subTree == null) {
-          final rmLoc = _locationsFilter.where((l) => l.id == t.id);
-
-          if (rmLoc.isNotEmpty) {
-            _locationsFilter.remove(rmLoc.first);
-          }
-        }
-      }
-    }
-
-    buildTree();
-  }
-
-  Future<void> removeParentTree(Asset item) async {
-    _assetsFilter.remove(item);
-    _removeParents(item);
-  }
-
-  void _removeParents(Asset child) {
-    final parent =
-        _assetsFilter.where((asset) => asset.id == child.parentId).firstOrNull;
-
-    if (parent != null) {
-      _assetsFilter.remove(parent);
-      _removeParents(parent);
-      if (parent.parentId == null && parent.locationId != null) {
-        final parentLocation = _locationsFilter
-            .where((location) => location.id == parent.locationId)
-            .firstOrNull;
-        if (parentLocation != null) {
-          _locationsFilter.remove(parentLocation);
-          if (parentLocation.parentId != null) {
-            final paParentLocation = _locationsFilter
-                .where((location) => location.id == parentLocation.parentId)
-                .firstOrNull;
-            if (paParentLocation != null) {
-              _locationsFilter.remove(paParentLocation);
-            }
-          }
-        }
-      }
-    }
-  }
-
   Future<void> buildTree() async {
     await buildLocation();
     await buildAsset();
   }
 
   Future<void> buildLocation() async {
-    final List<Tree> auxTree = _locationsFilter
-        .where((loc) => loc.parentId == null)
-        .map((loc) => Tree.fromLocation(loc))
-        .toList();
+    final List<Tree> auxTree = [];
 
-    for (var tree in auxTree) {
-      _buildSubTree(tree);
+    for (var loc in _locationsFilter.where((loc) => loc.parentId == null)) {
+      final tree = Tree.fromLocation(loc);
+      auxTree.add(tree);
+
+      final List<Tree> stack = [tree];
+
+      while (stack.isNotEmpty) {
+        final currentParent = stack.removeLast();
+
+        final children = _locationsFilter
+            .where((loc) => loc.parentId == currentParent.id)
+            .map((loc) => Tree.fromLocation(loc))
+            .toList();
+
+        if (children.isNotEmpty) {
+          currentParent.subTree ??= [];
+          currentParent.subTree!.addAll(children);
+          stack.addAll(children);
+        }
+      }
     }
 
     _tree = [...auxTree];
-  }
-
-  void _buildSubTree(Tree parentTree) {
-    final children = _locationsFilter
-        .where((loc) => loc.parentId == parentTree.id)
-        .map((loc) => Tree.fromLocation(loc))
-        .toList();
-
-    if (children.isNotEmpty) {
-      parentTree.subTree ??= [];
-      parentTree.subTree!.addAll(children);
-
-      for (var child in children) {
-        _buildSubTree(child);
-      }
-    }
   }
 
   Future<void> buildAsset() async {
@@ -246,4 +188,67 @@ abstract class AssetControllerBase with Store {
       }
     }
   }
+
+  @action
+  Future<void> setAssetStatus(AssetStatus value) async {
+    assetStatus = assetStatus == value ? AssetStatus.none : value;
+
+    // final String? removeQuery = switch (assetStatus) {
+    //   AssetStatus.critical => 'operating',
+    //   AssetStatus.energy => 'alert',
+    //   _ => null
+    // };
+    // _assetsFilter = [..._assets];
+    // _locationsFilter = [..._locations];
+
+    // if (assetStatus != AssetStatus.none) {
+    //   final toRemove =
+    //       _assetsFilter.where((i) => i.status == removeQuery).toList();
+    //   for (var rm in toRemove) {
+    //     await removeParentTree(rm);
+    //   }
+    //   for (var t in _tree) {
+    //     if (t.subTree == null) {
+    //       final rmLoc = _locationsFilter.where((l) => l.id == t.id);
+
+    //       if (rmLoc.isNotEmpty) {
+    //         _locationsFilter.remove(rmLoc.first);
+    //       }
+    //     }
+    //   }
+    // }
+
+    buildTree();
+  }
+
+  // Future<void> removeParentTree(Asset item) async {
+  //   _assetsFilter.remove(item);
+  //   _removeParents(item);
+  // }
+
+  // void _removeParents(Asset child) {
+  //   final parent =
+  //       _assetsFilter.where((asset) => asset.id == child.parentId).firstOrNull;
+
+  //   if (parent != null) {
+  //     _assetsFilter.remove(parent);
+  //     _removeParents(parent);
+  //     if (parent.parentId == null && parent.locationId != null) {
+  //       final parentLocation = _locationsFilter
+  //           .where((location) => location.id == parent.locationId)
+  //           .firstOrNull;
+  //       if (parentLocation != null) {
+  //         _locationsFilter.remove(parentLocation);
+  //         if (parentLocation.parentId != null) {
+  //           final paParentLocation = _locationsFilter
+  //               .where((location) => location.id == parentLocation.parentId)
+  //               .firstOrNull;
+  //           if (paParentLocation != null) {
+  //             _locationsFilter.remove(paParentLocation);
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
 }

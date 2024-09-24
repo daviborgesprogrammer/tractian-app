@@ -3,6 +3,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobx/mobx.dart';
 
+import '../../core/components/not_found.dart';
 import '../../core/ui/helpers/loader.dart';
 import '../../core/ui/helpers/messages.dart';
 import '../../models/company.dart';
@@ -57,26 +58,8 @@ class _HomePageState extends State<HomePage> with Loader, Messages {
         padding: const EdgeInsets.only(top: 10),
         child: Observer(
           builder: (_) => controller.companies.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SvgPicture.asset(
-                        'assets/svg/amicoazul.svg',
-                        height: 200,
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.only(top: 20),
-                        child: Text(
-                          'Não indentificamos nenhuma empresa!',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+              ? const NotFound(
+                  label: 'Não indetificamos nenhuma empresa!',
                 )
               : ListView.builder(
                   itemCount: controller.companies.length,

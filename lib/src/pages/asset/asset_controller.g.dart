@@ -45,24 +45,6 @@ mixin _$AssetController on AssetControllerBase, Store {
     });
   }
 
-  late final _$_locationsFilterAtom =
-      Atom(name: 'AssetControllerBase._locationsFilter', context: context);
-
-  List<Location> get locationsFilter {
-    _$_locationsFilterAtom.reportRead();
-    return super._locationsFilter;
-  }
-
-  @override
-  List<Location> get _locationsFilter => locationsFilter;
-
-  @override
-  set _locationsFilter(List<Location> value) {
-    _$_locationsFilterAtom.reportWrite(value, super._locationsFilter, () {
-      super._locationsFilter = value;
-    });
-  }
-
   late final _$_locationsAtom =
       Atom(name: 'AssetControllerBase._locations', context: context);
 
@@ -81,24 +63,6 @@ mixin _$AssetController on AssetControllerBase, Store {
     });
   }
 
-  late final _$_assetsFilterAtom =
-      Atom(name: 'AssetControllerBase._assetsFilter', context: context);
-
-  List<Asset> get assetsFilter {
-    _$_assetsFilterAtom.reportRead();
-    return super._assetsFilter;
-  }
-
-  @override
-  List<Asset> get _assetsFilter => assetsFilter;
-
-  @override
-  set _assetsFilter(List<Asset> value) {
-    _$_assetsFilterAtom.reportWrite(value, super._assetsFilter, () {
-      super._assetsFilter = value;
-    });
-  }
-
   late final _$_assetsAtom =
       Atom(name: 'AssetControllerBase._assets', context: context);
 
@@ -114,6 +78,42 @@ mixin _$AssetController on AssetControllerBase, Store {
   set _assets(List<Asset> value) {
     _$_assetsAtom.reportWrite(value, super._assets, () {
       super._assets = value;
+    });
+  }
+
+  late final _$_locationsFilterAtom =
+      Atom(name: 'AssetControllerBase._locationsFilter', context: context);
+
+  List<Location> get locationsFilter {
+    _$_locationsFilterAtom.reportRead();
+    return super._locationsFilter;
+  }
+
+  @override
+  List<Location> get _locationsFilter => locationsFilter;
+
+  @override
+  set _locationsFilter(List<Location> value) {
+    _$_locationsFilterAtom.reportWrite(value, super._locationsFilter, () {
+      super._locationsFilter = value;
+    });
+  }
+
+  late final _$_assetsFilterAtom =
+      Atom(name: 'AssetControllerBase._assetsFilter', context: context);
+
+  List<Asset> get assetsFilter {
+    _$_assetsFilterAtom.reportRead();
+    return super._assetsFilter;
+  }
+
+  @override
+  List<Asset> get _assetsFilter => assetsFilter;
+
+  @override
+  set _assetsFilter(List<Asset> value) {
+    _$_assetsFilterAtom.reportWrite(value, super._assetsFilter, () {
+      super._assetsFilter = value;
     });
   }
 
@@ -153,6 +153,22 @@ mixin _$AssetController on AssetControllerBase, Store {
     });
   }
 
+  late final _$queryAtom =
+      Atom(name: 'AssetControllerBase.query', context: context);
+
+  @override
+  String? get query {
+    _$queryAtom.reportRead();
+    return super.query;
+  }
+
+  @override
+  set query(String? value) {
+    _$queryAtom.reportWrite(value, super.query, () {
+      super.query = value;
+    });
+  }
+
   late final _$assetStatusAtom =
       Atom(name: 'AssetControllerBase.assetStatus', context: context);
 
@@ -177,9 +193,24 @@ mixin _$AssetController on AssetControllerBase, Store {
     return _$setAssetStatusAsyncAction.run(() => super.setAssetStatus(value));
   }
 
+  late final _$AssetControllerBaseActionController =
+      ActionController(name: 'AssetControllerBase', context: context);
+
+  @override
+  void setQuery(String value) {
+    final _$actionInfo = _$AssetControllerBaseActionController.startAction(
+        name: 'AssetControllerBase.setQuery');
+    try {
+      return super.setQuery(value);
+    } finally {
+      _$AssetControllerBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
   @override
   String toString() {
     return '''
+query: ${query},
 assetStatus: ${assetStatus}
     ''';
   }

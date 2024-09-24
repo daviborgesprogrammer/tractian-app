@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../../../core/ui/asset_const.dart';
 import '../../../models/tree.dart';
 
 class TreeTile extends StatefulWidget {
@@ -17,16 +18,7 @@ class TreeTile extends StatefulWidget {
 
 class _TreeTileState extends State<TreeTile> {
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return buildTree();
-  }
-
-  Widget buildTree() {
     return buildCeil(item: widget.item);
   }
 
@@ -59,7 +51,7 @@ class _TreeTileState extends State<TreeTile> {
                       width: 24,
                       child: Center(
                         child: SvgPicture.asset(
-                          'assets/svg/Down.svg',
+                          SvgConstant.arrowIcon,
                           height: 10,
                           colorFilter: ColorFilter.mode(
                             item.subTree != null && item.subTree!.isNotEmpty
@@ -74,10 +66,10 @@ class _TreeTileState extends State<TreeTile> {
                       padding: const EdgeInsets.symmetric(vertical: 3),
                       child: Image.asset(
                         switch (item.treeType) {
-                          TreeType.location => 'assets/icons/location.png',
-                          TreeType.asset => 'assets/icons/asset.png',
-                          TreeType.component => 'assets/icons/component.png',
-                          _ => 'assets/icons/location.png',
+                          TreeType.location => SvgConstant.locationIcon,
+                          TreeType.asset => SvgConstant.assetIcon,
+                          TreeType.component => SvgConstant.componentIcon,
+                          _ => SvgConstant.locationIcon,
                         },
                       ),
                     ),
@@ -85,19 +77,21 @@ class _TreeTileState extends State<TreeTile> {
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: Text(
                         item.name ?? '',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
                         style: const TextStyle(
                           fontSize: 14,
                           color: Color(0XFF17192D),
                         ),
                       ),
                     ),
-                    item.status != null && item.status == 'alert'
+                    item.sensorType != null && item.sensorType == 'vibration'
                         ? const Icon(
                             Icons.circle,
                             size: 8,
                             color: Color(0XFFED3833),
                           )
-                        : item.status != null && item.status == 'operating'
+                        : item.sensorType != null && item.sensorType == 'energy'
                             ? const Icon(
                                 Icons.bolt,
                                 size: 16,

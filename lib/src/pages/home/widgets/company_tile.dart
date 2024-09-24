@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../../../core/ui/asset_const.dart';
+
 class CompanyTile extends StatelessWidget {
   final String title;
   final String id;
@@ -30,7 +32,7 @@ class CompanyTile extends StatelessWidget {
             child: Row(
               children: [
                 SvgPicture.asset(
-                  'assets/svg/icon.svg',
+                  SvgConstant.companyIcon,
                   colorFilter:
                       const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                   width: 24,

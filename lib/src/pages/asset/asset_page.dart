@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:mobx/mobx.dart';
 
+import '../../core/components/not_found.dart';
 import '../../core/ui/helpers/debouncer.dart';
 import '../../core/ui/helpers/loader.dart';
 import '../../core/ui/helpers/messages.dart';
 import '../../models/tree.dart';
 import 'asset_controller.dart';
-import 'widgets/filter_button.dart';
-import 'widgets/search_field.dart';
+import 'widgets/filter_section.dart';
 import 'widgets/tree_tile.dart';
 
 class AssetPage extends StatefulWidget {
@@ -28,6 +27,7 @@ class _AssetPageState extends State<AssetPage> with Loader, Messages {
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final id = ModalRoute.of(context)!.settings.arguments as String;
+
       statusDisposer = reaction((_) => controller.status, (status) async {
         switch (status) {
           case AssetStateStatus.initial:
@@ -52,77 +52,27 @@ class _AssetPageState extends State<AssetPage> with Loader, Messages {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: const Text('Assets'),
       ),
       body: Observer(
         builder: (_) => controller.tree.isEmpty
-            ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset(
-                      'assets/svg/amicoazul.svg',
-                      height: 200,
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.only(top: 20),
-                      child: Text(
-                        'Não indentificamos nenhuma empresa!',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              )
+            ? const NotFound(label: 'Não encontramos nenhum item!')
             : Column(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(width: 1, color: Color(0XFFEAEEF2)),
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        SearchField(
-                          onChanged: (value) {
-                            debouncer.call(() {
-                              controller.setQuery(value);
-                            });
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            FilterButton(
-                              iconUrl: 'assets/svg/bolt.svg',
-                              label: 'Sensor de Energia',
-                              selected:
-                                  controller.assetStatus == AssetStatus.energy,
-                              onTap: () async {
-                                await controller
-                                    .setAssetStatus(AssetStatus.energy);
-                              },
-                            ),
-                            const SizedBox(width: 8),
-                            FilterButton(
-                              iconUrl: 'assets/svg/exclamationCircle.svg',
-                              label: 'Crítico',
-                              selected: controller.assetStatus ==
-                                  AssetStatus.critical,
-                              onTap: () async {
-                                await controller
-                                    .setAssetStatus(AssetStatus.critical);
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                  FilterSection(
+                    onSearchChanged: (value) {
+                      debouncer.call(() {
+                        controller.setQuery(value);
+                      });
+                    },
+                    buttonSelected: controller.assetStatus,
+                    onSearchTap: (value) async {
+                      await controller.setAssetStatus(value);
+                    },
                   ),
                   Expanded(
                     child: ListView.builder(
