@@ -67,6 +67,7 @@ abstract class AssetControllerBase with Store {
   @observable
   AssetStatus assetStatus = AssetStatus.none;
 
+  @action
   Future<void> fetch(String id) async {
     _status = AssetStateStatus.loading;
     await fetchLocations(id);
@@ -75,16 +76,19 @@ abstract class AssetControllerBase with Store {
     _status = AssetStateStatus.loaded;
   }
 
+  @action
   Future<void> fetchLocations(String id) async {
     _locations = await _locationService.fetchLocations(id, offline: true);
     _locationsFilter = [..._locations];
   }
 
+  @action
   Future<void> fetchAssets(String id) async {
     _assets = await _assetService.fetchAssets(id, offline: true);
     _assetsFilter = [..._assets];
   }
 
+  @action
   Future<void> buildTree() async {
     await buildLocation();
     await buildAsset();
@@ -94,7 +98,7 @@ abstract class AssetControllerBase with Store {
     final List<Tree> auxTree = [];
 
     for (var loc in _locationsFilter.where((loc) => loc.parentId == null)) {
-      final tree = Tree.fromLocation(loc);
+      final tree = Tree.fromLocation(loc, paths: ['root']);
       auxTree.add(tree);
 
       final List<Tree> stack = [tree];
@@ -104,12 +108,17 @@ abstract class AssetControllerBase with Store {
 
         final children = _locationsFilter
             .where((loc) => loc.parentId == currentParent.id)
-            .map((loc) => Tree.fromLocation(loc))
+            .map(
+              (loc) => Tree.fromLocation(
+                loc,
+                paths: [...currentParent.path!, currentParent.id ?? ''],
+              ),
+            )
             .toList();
 
         if (children.isNotEmpty) {
-          currentParent.subTree ??= [];
-          currentParent.subTree!.addAll(children);
+          currentParent.child ??= [];
+          currentParent.child!.addAll(children);
           stack.addAll(children);
         }
       }
@@ -122,7 +131,8 @@ abstract class AssetControllerBase with Store {
     final unlike = _assetsFilter
         .where((a) => a.parentId == null && a.locationId == null)
         .toList();
-    _tree.addAll(unlike.map((c) => Tree.fromAsset(c)).toList());
+    _tree
+        .addAll(unlike.map((c) => Tree.fromAsset(c, paths: ['root'])).toList());
 
     final hasLocation = _assetsFilter
         .where((a) => a.locationId != null && a.sensorId == null)
@@ -155,20 +165,32 @@ abstract class AssetControllerBase with Store {
   void seekTreeAssetLocation(Tree item, {required List<Tree> tree}) {
     final int treeIndex = tree.indexWhere((t) => t.id == item.locationId);
 
+    final parentItem = tree.where((t) => t.id == item.locationId);
+    if (parentItem.isNotEmpty) {
+      item.path = [...?parentItem.first.path, parentItem.first.id ?? ''];
+    }
     if (treeIndex != -1) {
-      tree[treeIndex].subTree ??= [];
-      tree[treeIndex].subTree!.add(item);
+      tree[treeIndex].child ??= [];
+      tree[treeIndex].child!.add(item);
       return;
     }
 
     for (var parent in tree) {
-      if (parent.subTree != null && parent.subTree!.isNotEmpty) {
+      if (parent.child != null && parent.child!.isNotEmpty) {
         final int subTreeIndex =
-            parent.subTree!.indexWhere((t) => t.id == item.locationId);
+            parent.child!.indexWhere((t) => t.id == item.locationId);
+        final subParentItem =
+            parent.child!.where((t) => t.id == item.locationId);
 
+        if (subParentItem.isNotEmpty) {
+          item.path = [
+            ...?subParentItem.first.path,
+            subParentItem.first.id ?? '',
+          ];
+        }
         if (subTreeIndex != -1) {
-          parent.subTree![subTreeIndex].subTree ??= [];
-          parent.subTree![subTreeIndex].subTree!.add(item);
+          parent.child![subTreeIndex].child ??= [];
+          parent.child![subTreeIndex].child!.add(item);
           return;
         }
       }
@@ -178,13 +200,14 @@ abstract class AssetControllerBase with Store {
   void seekTreeAsset(Tree item, {required List<Tree> tree}) {
     for (var treeNode in tree) {
       if (treeNode.treeType == TreeType.asset && treeNode.id == item.parentId) {
-        treeNode.subTree ??= [];
-        treeNode.subTree!.add(item);
+        treeNode.child ??= [];
+        item.path = [...?treeNode.path, treeNode.id ?? ''];
+        treeNode.child!.add(item);
         return;
       }
 
-      if (treeNode.subTree != null && treeNode.subTree!.isNotEmpty) {
-        seekTreeAsset(item, tree: treeNode.subTree!);
+      if (treeNode.child != null && treeNode.child!.isNotEmpty) {
+        seekTreeAsset(item, tree: treeNode.child!);
       }
     }
   }
@@ -193,30 +216,31 @@ abstract class AssetControllerBase with Store {
   Future<void> setAssetStatus(AssetStatus value) async {
     assetStatus = assetStatus == value ? AssetStatus.none : value;
 
-    // final String? removeQuery = switch (assetStatus) {
-    //   AssetStatus.critical => 'operating',
-    //   AssetStatus.energy => 'alert',
-    //   _ => null
-    // };
-    // _assetsFilter = [..._assets];
-    // _locationsFilter = [..._locations];
+    final String? removeQuery = switch (assetStatus) {
+      AssetStatus.critical => 'vibration',
+      AssetStatus.energy => 'energy',
+      _ => null
+    };
+    _assetsFilter = [..._assets];
+    _locationsFilter = [..._locations];
 
-    // if (assetStatus != AssetStatus.none) {
-    //   final toRemove =
-    //       _assetsFilter.where((i) => i.status == removeQuery).toList();
-    //   for (var rm in toRemove) {
-    //     await removeParentTree(rm);
-    //   }
-    //   for (var t in _tree) {
-    //     if (t.subTree == null) {
-    //       final rmLoc = _locationsFilter.where((l) => l.id == t.id);
+    if (assetStatus != AssetStatus.none) {
+      final toRemove =
+          _assetsFilter.where((i) => i.sensorType == removeQuery).toList();
+      print(toRemove);
+      //   for (var rm in toRemove) {
+      //     await removeParentTree(rm);
+      //   }
+      //   for (var t in _tree) {
+      //     if (t.subTree == null) {
+      //       final rmLoc = _locationsFilter.where((l) => l.id == t.id);
 
-    //       if (rmLoc.isNotEmpty) {
-    //         _locationsFilter.remove(rmLoc.first);
-    //       }
-    //     }
-    //   }
-    // }
+      //       if (rmLoc.isNotEmpty) {
+      //         _locationsFilter.remove(rmLoc.first);
+      //       }
+      //     }
+      //   }
+    }
 
     buildTree();
   }

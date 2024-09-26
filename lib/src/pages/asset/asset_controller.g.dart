@@ -185,6 +185,38 @@ mixin _$AssetController on AssetControllerBase, Store {
     });
   }
 
+  late final _$fetchAsyncAction =
+      AsyncAction('AssetControllerBase.fetch', context: context);
+
+  @override
+  Future<void> fetch(String id) {
+    return _$fetchAsyncAction.run(() => super.fetch(id));
+  }
+
+  late final _$fetchLocationsAsyncAction =
+      AsyncAction('AssetControllerBase.fetchLocations', context: context);
+
+  @override
+  Future<void> fetchLocations(String id) {
+    return _$fetchLocationsAsyncAction.run(() => super.fetchLocations(id));
+  }
+
+  late final _$fetchAssetsAsyncAction =
+      AsyncAction('AssetControllerBase.fetchAssets', context: context);
+
+  @override
+  Future<void> fetchAssets(String id) {
+    return _$fetchAssetsAsyncAction.run(() => super.fetchAssets(id));
+  }
+
+  late final _$buildTreeAsyncAction =
+      AsyncAction('AssetControllerBase.buildTree', context: context);
+
+  @override
+  Future<void> buildTree() {
+    return _$buildTreeAsyncAction.run(() => super.buildTree());
+  }
+
   late final _$setAssetStatusAsyncAction =
       AsyncAction('AssetControllerBase.setAssetStatus', context: context);
 

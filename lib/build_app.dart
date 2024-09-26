@@ -15,7 +15,7 @@ import 'src/tractian_app.dart';
 Future<void> buildSetups() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  await setWindowSize();
+  // await setWindowSize();
   await setupLocators();
   runApp(const TractianApp());
 }
