@@ -7,6 +7,7 @@ class Asset {
   String? sensorId;
   String? sensorType;
   String? status;
+  List<String>? path;
 
   Asset({
     this.gatewayId,
@@ -17,6 +18,7 @@ class Asset {
     this.sensorId,
     this.sensorType,
     this.status,
+    this.path,
   });
 
   Map<String, dynamic> toJson() {
@@ -49,6 +51,6 @@ class Asset {
 
   @override
   String toString() {
-    return name!.toUpperCase();
+    return '$name-$path';
   }
 }

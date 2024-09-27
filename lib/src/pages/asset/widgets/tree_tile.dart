@@ -88,8 +88,7 @@ class _TreeTileState extends State<TreeTile> {
                             ),
                           ),
                         ),
-                        item.sensorType != null &&
-                                item.sensorType == 'vibration'
+                        item.status != null && item.status == 'alert'
                             ? const Icon(
                                 Icons.circle,
                                 size: 8,

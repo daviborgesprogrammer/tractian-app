@@ -36,17 +36,17 @@ class Tree {
     this.path,
   });
 
-  factory Tree.fromLocation(Location location, {List<String>? paths}) {
+  factory Tree.fromLocation(Location location) {
     return Tree(
       id: location.id,
       name: location.name,
       parentId: location.parentId,
       treeType: TreeType.location,
-      path: paths,
+      path: location.path,
     );
   }
 
-  factory Tree.fromAsset(Asset asset, {List<String>? paths}) {
+  factory Tree.fromAsset(Asset asset) {
     return Tree(
       gatewayId: asset.gatewayId,
       id: asset.id,
@@ -57,7 +57,7 @@ class Tree {
       sensorType: asset.sensorType,
       status: asset.status,
       treeType: asset.sensorType != null ? TreeType.component : TreeType.asset,
-      path: paths,
+      path: asset.path,
     );
   }
 
@@ -79,16 +79,16 @@ class Tree {
     List<String>? path,
   }) {
     return Tree(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      parentId: parentId ?? this.parentId,
-      gatewayId: gatewayId ?? this.gatewayId,
-      locationId: locationId ?? this.locationId,
-      sensorId: sensorId ?? this.sensorId,
-      sensorType: sensorType ?? this.sensorType,
-      status: status ?? this.status,
-      child: subTree ?? this.child,
-      path: path ?? this.path,
+      id: id ?? id,
+      name: name ?? name,
+      parentId: parentId ?? parentId,
+      gatewayId: gatewayId ?? gatewayId,
+      locationId: locationId ?? locationId,
+      sensorId: sensorId ?? sensorId,
+      sensorType: sensorType ?? sensorType,
+      status: status ?? status,
+      child: subTree ?? child,
+      path: path ?? path,
     );
   }
 }

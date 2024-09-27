@@ -1,16 +1,13 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'tree.dart';
-
 class Location {
   String? id;
   String? name;
   String? parentId;
-  List<Tree>? subTree;
+  List<String>? path;
   Location({
     this.id,
     this.name,
     this.parentId,
-    this.subTree,
+    this.path,
   });
 
   Map<String, dynamic> toJson() {
@@ -27,5 +24,10 @@ class Location {
       name: map['name'] != null ? map['name'] as String : null,
       parentId: map['parentId'] != null ? map['parentId'] as String : null,
     );
+  }
+
+  @override
+  String toString() {
+    return '$name:$path';
   }
 }

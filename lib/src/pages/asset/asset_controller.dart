@@ -4,8 +4,7 @@ import 'package:mobx/mobx.dart';
 import '../../models/asset.dart';
 import '../../models/location.dart';
 import '../../models/tree.dart';
-import '../../services/assets/assets_service.dart';
-import '../../services/location/location_service.dart';
+import '../../services/tree/tree_service.dart';
 part 'asset_controller.g.dart';
 
 enum AssetStateStatus {
@@ -24,8 +23,7 @@ enum AssetStatus {
 class AssetController = AssetControllerBase with _$AssetController;
 
 abstract class AssetControllerBase with Store {
-  final _locationService = GetIt.I<LocationService>();
-  final _assetService = GetIt.I<AssetsService>();
+  final _treeService = GetIt.I<TreeService>();
   @readonly
   var _status = AssetStateStatus.initial;
 
@@ -69,178 +67,110 @@ abstract class AssetControllerBase with Store {
 
   @action
   Future<void> fetch(String id) async {
+    var locations = <Location>[];
+    var assets = <Asset>[];
     _status = AssetStateStatus.loading;
-    await fetchLocations(id);
-    await fetchAssets(id);
+    await Future.wait([fetchLocations(id), fetchAssets(id)]);
+
+    (locations, assets) = await _treeService.setPath(_locations, _assets);
+    _locations = locations;
+    _assets = assets;
+    _locationsFilter = [..._locations];
+    _assetsFilter = [..._assets];
+
     await buildTree();
+
     _status = AssetStateStatus.loaded;
   }
 
   @action
   Future<void> fetchLocations(String id) async {
-    _locations = await _locationService.fetchLocations(id, offline: true);
-    _locationsFilter = [..._locations];
+    _locations = await _treeService.fetchLocations(id, offline: true);
   }
 
   @action
   Future<void> fetchAssets(String id) async {
-    _assets = await _assetService.fetchAssets(id, offline: true);
-    _assetsFilter = [..._assets];
+    _assets = await _treeService.fetchAssets(id, offline: true);
   }
 
   @action
   Future<void> buildTree() async {
-    await buildLocation();
-    await buildAsset();
-  }
-
-  Future<void> buildLocation() async {
-    final List<Tree> auxTree = [];
-
-    for (var loc in _locationsFilter.where((loc) => loc.parentId == null)) {
-      final tree = Tree.fromLocation(loc, paths: ['root']);
-      auxTree.add(tree);
-
-      final List<Tree> stack = [tree];
-
-      while (stack.isNotEmpty) {
-        final currentParent = stack.removeLast();
-
-        final children = _locationsFilter
-            .where((loc) => loc.parentId == currentParent.id)
-            .map(
-              (loc) => Tree.fromLocation(
-                loc,
-                paths: [...currentParent.path!, currentParent.id ?? ''],
-              ),
-            )
-            .toList();
-
-        if (children.isNotEmpty) {
-          currentParent.child ??= [];
-          currentParent.child!.addAll(children);
-          stack.addAll(children);
-        }
-      }
-    }
-
-    _tree = [...auxTree];
-  }
-
-  Future<void> buildAsset() async {
-    final unlike = _assetsFilter
-        .where((a) => a.parentId == null && a.locationId == null)
-        .toList();
-    _tree
-        .addAll(unlike.map((c) => Tree.fromAsset(c, paths: ['root'])).toList());
-
-    final hasLocation = _assetsFilter
-        .where((a) => a.locationId != null && a.sensorId == null)
-        .map((m) => Tree.fromAsset(m))
-        .toList();
-    for (var hl in hasLocation) {
-      seekTreeAssetLocation(hl, tree: _tree);
-    }
-
-    final hasParent = _assetsFilter
-        .where((a) => a.parentId != null && a.sensorId == null)
-        .map((m) => Tree.fromAsset(m))
-        .toList();
-
-    for (var hp in hasParent) {
-      seekTreeAsset(hp, tree: _tree);
-    }
-
-    final getComponent = _assetsFilter
-        .where((a) => a.sensorType != null)
-        .map((m) => Tree.fromAsset(m))
-        .toList();
-    for (var gC in getComponent) {
-      seekTreeAsset(gC, tree: _tree);
-    }
-
-    _tree = [..._tree];
-  }
-
-  void seekTreeAssetLocation(Tree item, {required List<Tree> tree}) {
-    final int treeIndex = tree.indexWhere((t) => t.id == item.locationId);
-
-    final parentItem = tree.where((t) => t.id == item.locationId);
-    if (parentItem.isNotEmpty) {
-      item.path = [...?parentItem.first.path, parentItem.first.id ?? ''];
-    }
-    if (treeIndex != -1) {
-      tree[treeIndex].child ??= [];
-      tree[treeIndex].child!.add(item);
-      return;
-    }
-
-    for (var parent in tree) {
-      if (parent.child != null && parent.child!.isNotEmpty) {
-        final int subTreeIndex =
-            parent.child!.indexWhere((t) => t.id == item.locationId);
-        final subParentItem =
-            parent.child!.where((t) => t.id == item.locationId);
-
-        if (subParentItem.isNotEmpty) {
-          item.path = [
-            ...?subParentItem.first.path,
-            subParentItem.first.id ?? '',
-          ];
-        }
-        if (subTreeIndex != -1) {
-          parent.child![subTreeIndex].child ??= [];
-          parent.child![subTreeIndex].child!.add(item);
-          return;
-        }
-      }
-    }
-  }
-
-  void seekTreeAsset(Tree item, {required List<Tree> tree}) {
-    for (var treeNode in tree) {
-      if (treeNode.treeType == TreeType.asset && treeNode.id == item.parentId) {
-        treeNode.child ??= [];
-        item.path = [...?treeNode.path, treeNode.id ?? ''];
-        treeNode.child!.add(item);
-        return;
-      }
-
-      if (treeNode.child != null && treeNode.child!.isNotEmpty) {
-        seekTreeAsset(item, tree: treeNode.child!);
-      }
-    }
+    _tree = await _treeService.buildTree(
+        locations: _locationsFilter, assets: _assetsFilter);
   }
 
   @action
   Future<void> setAssetStatus(AssetStatus value) async {
     assetStatus = assetStatus == value ? AssetStatus.none : value;
 
-    final String? removeQuery = switch (assetStatus) {
-      AssetStatus.critical => 'vibration',
-      AssetStatus.energy => 'energy',
-      _ => null
-    };
-    _assetsFilter = [..._assets];
-    _locationsFilter = [..._locations];
-
+    //  final String? query = switch (assetStatus) {
+    //   AssetStatus.critical => 'vibration',
+    //   AssetStatus.energy => 'energy',
+    //   _ => null
+    // };
+    List<Asset> filters = [];
     if (assetStatus != AssetStatus.none) {
-      final toRemove =
-          _assetsFilter.where((i) => i.sensorType == removeQuery).toList();
-      print(toRemove);
-      //   for (var rm in toRemove) {
-      //     await removeParentTree(rm);
-      //   }
-      //   for (var t in _tree) {
-      //     if (t.subTree == null) {
-      //       final rmLoc = _locationsFilter.where((l) => l.id == t.id);
+      if (assetStatus == AssetStatus.energy) {
+        filters =
+            _assetsFilter.where((af) => af.sensorType == 'energy').toList();
+      } else {
+        filters = _assetsFilter.where((af) => af.status == 'alert').toList();
+      }
 
-      //       if (rmLoc.isNotEmpty) {
-      //         _locationsFilter.remove(rmLoc.first);
-      //       }
-      //     }
-      //   }
+      for (var filter in filters) {
+        print(filter.path);
+        if (filter.path != null) {
+          // for (var path in filter.path!) {
+          //   if(filter.path!.length == 1){
+
+          //   }
+          // }
+        }
+
+        // _assetsFilter
+        //     .where(
+        //       (asset) => filter.path!.any((f) {
+        //         if (f == asset.id) {
+        //           return true;
+        //         }
+        //         return false;
+        //       }),
+        //     )
+        //     .toList();
+        // _assetsFilter.where((asset)=>filter.path!.any((f)=>f == asset.id)).toList();
+      }
+
+      // _assetsFilter = _assets
+      //     .where((asset) => filters.any((filter) => filter.id == asset.id))
+      //     .toList();
+      //     _locationsFilter = _locations.where((location)=> filters.any((filter)=>filter.id == location)).toList();
+    } else {
+      _assetsFilter = [..._assets];
+      _locationsFilter = [..._locations];
     }
+
+    // final String? removeQuery = switch (assetStatus) {
+    //   AssetStatus.critical => 'vibration',
+    //   AssetStatus.energy => 'energy',
+    //   _ => null
+    // };
+
+    // if (assetStatus != AssetStatus.none) {
+    // final toRemove =
+    //     _assetsFilter.where((i) => i.sensorType == removeQuery).toList();
+    //   for (var rm in toRemove) {
+    //     await removeParentTree(rm);
+    //   }
+    //   for (var t in _tree) {
+    //     if (t.subTree == null) {
+    //       final rmLoc = _locationsFilter.where((l) => l.id == t.id);
+
+    //       if (rmLoc.isNotEmpty) {
+    //         _locationsFilter.remove(rmLoc.first);
+    //       }
+    //     }
+    //   }
+    // }
 
     buildTree();
   }
