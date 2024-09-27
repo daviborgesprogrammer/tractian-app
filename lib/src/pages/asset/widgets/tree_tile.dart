@@ -108,10 +108,10 @@ class _TreeTileState extends State<TreeTile> {
                 ),
               ],
             ),
-            Text(
-              linePath(item.path),
-              style: const TextStyle(fontSize: 8),
-            ),
+            // Text(
+            //   linePath(item.path),
+            //   style: const TextStyle(fontSize: 8),
+            // ),
           ],
         ),
         if (item.child != null && item.child!.isNotEmpty)

@@ -59,7 +59,8 @@ class _AssetPageState extends State<AssetPage> with Loader, Messages {
         title: const Text('Assets'),
       ),
       body: Observer(
-        builder: (_) => controller.tree.isEmpty
+        builder: (_) => controller.tree.isEmpty &&
+                controller.assetStatus == AssetStatus.none
             ? const NotFound(label: 'Não encontramos nenhum item!')
             : Column(
                 children: [

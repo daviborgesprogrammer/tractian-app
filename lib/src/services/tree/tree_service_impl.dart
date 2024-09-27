@@ -51,7 +51,7 @@ class TreeServiceImpl implements TreeService {
       loc.path = buildLocationPath(loc, locationMap);
     }
 
-    return locations;
+    return locations.toSet().toList();
   }
 
   Future<List<Asset>> setPathAssets(
@@ -60,7 +60,7 @@ class TreeServiceImpl implements TreeService {
   ) async {
     for (var asset in assets) {
       if (asset.parentId == null && asset.locationId == null) {
-        asset.path = ['root'];
+        asset.path = [asset.id ?? 'root'];
       }
     }
     for (var asset in assets) {
@@ -89,7 +89,7 @@ class TreeServiceImpl implements TreeService {
       }
     }
 
-    return assets;
+    return assets.toSet().toList();
   }
 
   List<String> buildLocationPath(
@@ -97,7 +97,7 @@ class TreeServiceImpl implements TreeService {
     Map<String?, Location> locationMap,
   ) {
     if (loc.parentId == null) {
-      return ['root'];
+      return [loc.id ?? 'root'];
     } else {
       final parentLocation = locationMap[loc.parentId];
       if (parentLocation != null) {
