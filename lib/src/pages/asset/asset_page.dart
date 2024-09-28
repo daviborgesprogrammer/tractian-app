@@ -59,33 +59,33 @@ class _AssetPageState extends State<AssetPage> with Loader, Messages {
         title: const Text('Assets'),
       ),
       body: Observer(
-        builder: (_) => controller.tree.isEmpty &&
-                controller.assetStatus == AssetStatus.none
-            ? const NotFound(label: 'Não encontramos nenhum item!')
-            : Column(
-                children: [
-                  FilterSection(
-                    onSearchChanged: (value) {
-                      debouncer.call(() async {
-                        await controller.setQuery(value);
-                      });
-                    },
-                    buttonSelected: controller.assetStatus,
-                    onSearchTap: (value) async {
-                      await controller.setAssetStatus(value);
-                    },
-                  ),
-                  Expanded(
-                    child: ListView.builder(
+        builder: (_) => Column(
+          children: [
+            FilterSection(
+              onSearchChanged: (value) {
+                debouncer.call(() async {
+                  await controller.setQuery(value);
+                });
+              },
+              buttonSelected: controller.assetStatus,
+              onSearchTap: (value) async {
+                await controller.setAssetStatus(value);
+              },
+            ),
+            Expanded(
+              child: controller.tree.isEmpty &&
+                      controller.assetStatus == AssetStatus.none
+                  ? const NotFound(label: 'Não encontramos nenhum item!')
+                  : ListView.builder(
                       itemCount: controller.tree.length,
                       itemBuilder: (_, index) {
                         final Tree item = controller.tree[index];
                         return TreeTile(item);
                       },
                     ),
-                  ),
-                ],
-              ),
+            ),
+          ],
+        ),
       ),
     );
   }

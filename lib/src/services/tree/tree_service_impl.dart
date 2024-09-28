@@ -238,8 +238,54 @@ class TreeServiceImpl implements TreeService {
   }
 
   @override
-  Future<void> applySearch({
+  Future<(List<Asset>, List<Location>)> applySearch({
     String? textQuery,
     required AssetStatus optionQuery,
-  }) async {}
+    required List<Location> locations,
+    required List<Asset> assets,
+  }) async {
+    final List<Asset> assetsFilter = [];
+    final List<Location> locationsFilter = [];
+    List<Asset> filtersAsset = [];
+    List<Asset> filtersLocation = [];
+
+    filtersAsset = switch (optionQuery) {
+      AssetStatus.none => assets
+          .where(
+            (af) => af.name!.toLowerCase().contains(textQuery!.toLowerCase()),
+          )
+          .toList(),
+      AssetStatus.energy => assets
+          .where(
+            (af) =>
+                af.sensorType == 'energy' &&
+                af.name!.toLowerCase().contains(textQuery!.toLowerCase()),
+          )
+          .toList(),
+      AssetStatus.critical => assets
+          .where(
+            (af) =>
+                af.status == 'alert' &&
+                af.name!.toLowerCase().contains(textQuery!.toLowerCase()),
+          )
+          .toList(),
+    };
+    assetsFilter.addAll(filtersAsset);
+    for (var filter in filtersAsset) {
+      if (filter.path != null) {
+        for (var path in filter.path!) {
+          final locs = locations.where((l) => l.id == path);
+          final aes = assets.where((l) => l.id == path);
+          if (locs.isNotEmpty) {
+            locationsFilter.add(locs.first);
+          }
+          if (aes.isNotEmpty) {
+            assetsFilter.add(aes.first);
+          }
+        }
+      }
+    }
+
+    return (assetsFilter.toSet().toList(), locationsFilter.toSet().toList());
+  }
 }

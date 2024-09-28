@@ -14,9 +14,11 @@ abstract interface class TreeService {
     List<Asset> assets,
   );
 
-  Future<void> applySearch({
+  Future<(List<Asset>, List<Location>)> applySearch({
     String? textQuery,
     required AssetStatus optionQuery,
+    required List<Location> locations,
+    required List<Asset> assets,
   });
 
   Future<List<Tree>> buildTree({

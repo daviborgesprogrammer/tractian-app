@@ -221,7 +221,7 @@ mixin _$AssetController on AssetControllerBase, Store {
       AsyncAction('AssetControllerBase.setQuery', context: context);
 
   @override
-  Future setQuery(String value) {
+  Future<void> setQuery(String value) {
     return _$setQueryAsyncAction.run(() => super.setQuery(value));
   }
 

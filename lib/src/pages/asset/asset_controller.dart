@@ -97,7 +97,7 @@ abstract class AssetControllerBase with Store {
   }
 
   @action
-  void setQuery(String value) async {
+  Future<void> setQuery(String value) async {
     query = value;
     await applySearch();
   }
@@ -109,38 +109,17 @@ abstract class AssetControllerBase with Store {
   }
 
   Future<void> applySearch() async {
-    await _treeService.applySearch(textQuery: query, optionQuery: assetStatus);
-    // List<Asset> filters = [];
+    List<Asset> assetsFilter = [];
+    List<Location> locationsFilter = [];
+    (assetsFilter, locationsFilter) = await _treeService.applySearch(
+      textQuery: query,
+      optionQuery: assetStatus,
+      locations: _locations,
+      assets: _assets,
+    );
 
-    // if (assetStatus != AssetStatus.none) {
-    //   if (assetStatus == AssetStatus.energy) {
-    //     filters = _assets.where((af) => af.sensorType == 'energy').toList();
-    //   } else {
-    //     filters = _assets.where((af) => af.status == 'alert').toList();
-    //   }
-    //   _locationsFilter.clear();
-    //   _assetsFilter.clear();
-    //   _assetsFilter.addAll(filters);
-    //   for (var filter in filters) {
-    //     if (filter.path != null) {}
-    //     for (var path in filter.path!) {
-    //       final locations = _locations.where((l) => l.id == path);
-    //       final assets = _assets.where((l) => l.id == path);
-    //       if (locations.isNotEmpty) {
-    //         _locationsFilter.add(locations.first);
-    //       }
-    //       if (assets.isNotEmpty) {
-    //         _assetsFilter.add(assets.first);
-    //       }
-    //     }
-    //   }
-    // } else {
-    //   _assetsFilter = [..._assets];
-    //   _locationsFilter = [..._locations];
-    // }
-
-    _assetsFilter = _assetsFilter.toSet().toList();
-    _locationsFilter = _locationsFilter.toSet().toList();
+    _assetsFilter = [...assetsFilter];
+    _locationsFilter = [...locationsFilter];
 
     buildTree();
   }
