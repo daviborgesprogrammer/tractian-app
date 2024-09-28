@@ -57,11 +57,6 @@ abstract class AssetControllerBase with Store {
   @observable
   String? query;
 
-  @action
-  void setQuery(String value) {
-    query = value;
-  }
-
   @observable
   AssetStatus assetStatus = AssetStatus.none;
 
@@ -102,36 +97,47 @@ abstract class AssetControllerBase with Store {
   }
 
   @action
+  void setQuery(String value) async {
+    query = value;
+    await applySearch();
+  }
+
+  @action
   Future<void> setAssetStatus(AssetStatus value) async {
     assetStatus = assetStatus == value ? AssetStatus.none : value;
+    applySearch();
+  }
 
-    List<Asset> filters = [];
-    if (assetStatus != AssetStatus.none) {
-      if (assetStatus == AssetStatus.energy) {
-        filters = _assets.where((af) => af.sensorType == 'energy').toList();
-      } else {
-        filters = _assets.where((af) => af.status == 'alert').toList();
-      }
-      _locationsFilter.clear();
-      _assetsFilter.clear();
-      _assetsFilter.addAll(filters);
-      for (var filter in filters) {
-        if (filter.path != null) {}
-        for (var path in filter.path!) {
-          final locations = _locations.where((l) => l.id == path);
-          final assets = _assets.where((l) => l.id == path);
-          if (locations.isNotEmpty) {
-            _locationsFilter.add(locations.first);
-          }
-          if (assets.isNotEmpty) {
-            _assetsFilter.add(assets.first);
-          }
-        }
-      }
-    } else {
-      _assetsFilter = [..._assets];
-      _locationsFilter = [..._locations];
-    }
+  Future<void> applySearch() async {
+    await _treeService.applySearch(textQuery: query, optionQuery: assetStatus);
+    // List<Asset> filters = [];
+
+    // if (assetStatus != AssetStatus.none) {
+    //   if (assetStatus == AssetStatus.energy) {
+    //     filters = _assets.where((af) => af.sensorType == 'energy').toList();
+    //   } else {
+    //     filters = _assets.where((af) => af.status == 'alert').toList();
+    //   }
+    //   _locationsFilter.clear();
+    //   _assetsFilter.clear();
+    //   _assetsFilter.addAll(filters);
+    //   for (var filter in filters) {
+    //     if (filter.path != null) {}
+    //     for (var path in filter.path!) {
+    //       final locations = _locations.where((l) => l.id == path);
+    //       final assets = _assets.where((l) => l.id == path);
+    //       if (locations.isNotEmpty) {
+    //         _locationsFilter.add(locations.first);
+    //       }
+    //       if (assets.isNotEmpty) {
+    //         _assetsFilter.add(assets.first);
+    //       }
+    //     }
+    //   }
+    // } else {
+    //   _assetsFilter = [..._assets];
+    //   _locationsFilter = [..._locations];
+    // }
 
     _assetsFilter = _assetsFilter.toSet().toList();
     _locationsFilter = _locationsFilter.toSet().toList();

@@ -217,26 +217,20 @@ mixin _$AssetController on AssetControllerBase, Store {
     return _$buildTreeAsyncAction.run(() => super.buildTree());
   }
 
+  late final _$setQueryAsyncAction =
+      AsyncAction('AssetControllerBase.setQuery', context: context);
+
+  @override
+  Future setQuery(String value) {
+    return _$setQueryAsyncAction.run(() => super.setQuery(value));
+  }
+
   late final _$setAssetStatusAsyncAction =
       AsyncAction('AssetControllerBase.setAssetStatus', context: context);
 
   @override
   Future<void> setAssetStatus(AssetStatus value) {
     return _$setAssetStatusAsyncAction.run(() => super.setAssetStatus(value));
-  }
-
-  late final _$AssetControllerBaseActionController =
-      ActionController(name: 'AssetControllerBase', context: context);
-
-  @override
-  void setQuery(String value) {
-    final _$actionInfo = _$AssetControllerBaseActionController.startAction(
-        name: 'AssetControllerBase.setQuery');
-    try {
-      return super.setQuery(value);
-    } finally {
-      _$AssetControllerBaseActionController.endAction(_$actionInfo);
-    }
   }
 
   @override

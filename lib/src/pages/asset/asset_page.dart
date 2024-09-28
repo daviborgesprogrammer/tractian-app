@@ -66,8 +66,8 @@ class _AssetPageState extends State<AssetPage> with Loader, Messages {
                 children: [
                   FilterSection(
                     onSearchChanged: (value) {
-                      debouncer.call(() {
-                        controller.setQuery(value);
+                      debouncer.call(() async {
+                        await controller.setQuery(value);
                       });
                     },
                     buttonSelected: controller.assetStatus,

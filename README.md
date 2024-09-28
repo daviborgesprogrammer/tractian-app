@@ -15,7 +15,7 @@ Assets are essential to the operation of the industry, it can include everything
 - Components are typically associated with an asset, but the customer **may** want to add components without an asset as a parent **or** with a location as a parent
 - Components typically include **vibration** or **energy** sensors, and they have a **operating** or **alert** status
 - On the tree, components are represented by this icon:
-![component](../assets/component.png)
+![component](assets/icons/component.png)
     
 
 **Assets/Sub-Assets**

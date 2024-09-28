@@ -4,6 +4,7 @@ import '../../core/restClient/local_client.dart';
 import '../../models/asset.dart';
 import '../../models/location.dart';
 import '../../models/tree.dart';
+import '../../pages/asset/asset_controller.dart';
 import '../../repositories/tree/tree_repository.dart';
 import './tree_service.dart';
 
@@ -235,4 +236,10 @@ class TreeServiceImpl implements TreeService {
       }
     }
   }
+
+  @override
+  Future<void> applySearch({
+    String? textQuery,
+    required AssetStatus optionQuery,
+  }) async {}
 }
