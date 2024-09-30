@@ -251,7 +251,8 @@ class TreeServiceImpl implements TreeService {
 
     filtersLocation = locations
         .where(
-          (loc) => loc.name!.toLowerCase().contains(textQuery!.toLowerCase()),
+          (loc) =>
+              loc.name!.toLowerCase().contains(textQuery?.toLowerCase() ?? ''),
         )
         .toList();
     locationsFiltered.addAll(filtersLocation);

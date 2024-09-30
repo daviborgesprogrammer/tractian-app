@@ -9,11 +9,13 @@ class FilterSection extends StatelessWidget {
   final ValueChanged<String>? onSearchChanged;
   final ValueChanged<AssetStatus>? onSearchTap;
   final AssetStatus buttonSelected;
+  final VoidCallback? onClearText;
   const FilterSection({
     super.key,
     this.onSearchChanged,
     this.onSearchTap,
     this.buttonSelected = AssetStatus.none,
+    this.onClearText,
   });
 
   @override
@@ -29,6 +31,7 @@ class FilterSection extends StatelessWidget {
         children: [
           FilterTextSearch(
             onChanged: onSearchChanged,
+            onClearText: onClearText,
           ),
           const SizedBox(height: 8),
           Row(
@@ -59,11 +62,5 @@ class FilterSection extends StatelessWidget {
         ],
       ),
     );
-    // return Column(
-    //   children: [
-
-    //     FilterTextSearch(),
-    //   ],
-    // );
   }
 }

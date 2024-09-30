@@ -67,20 +67,25 @@ class _AssetPageState extends State<AssetPage> with Loader, Messages {
                   await controller.setQuery(value);
                 });
               },
+              onClearText: () async {
+                await controller.setQuery('');
+              },
               buttonSelected: controller.assetStatus,
               onSearchTap: (value) async {
                 await controller.setAssetStatus(value);
               },
             ),
             Expanded(
-              child: controller.tree.isEmpty &&
+              child: controller.treeList.isEmpty &&
                       controller.assetStatus == AssetStatus.none
                   ? const NotFound(label: 'Não encontramos nenhum item!')
                   : ListView.builder(
-                      itemCount: controller.tree.length,
+                      itemCount: controller.treeList.length,
                       itemBuilder: (_, index) {
-                        final Tree item = controller.tree[index];
-                        return TreeTile(item);
+                        final Tree item = controller.treeList[index];
+                        return TreeTile(
+                          item,
+                        );
                       },
                     ),
             ),

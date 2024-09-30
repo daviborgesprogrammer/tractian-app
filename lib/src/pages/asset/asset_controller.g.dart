@@ -117,39 +117,19 @@ mixin _$AssetController on AssetControllerBase, Store {
     });
   }
 
-  late final _$_listTreeAtom =
-      Atom(name: 'AssetControllerBase._listTree', context: context);
+  late final _$treeListAtom =
+      Atom(name: 'AssetControllerBase.treeList', context: context);
 
-  List<Map<dynamic, dynamic>> get listTree {
-    _$_listTreeAtom.reportRead();
-    return super._listTree;
+  @override
+  List<Tree> get treeList {
+    _$treeListAtom.reportRead();
+    return super.treeList;
   }
 
   @override
-  List<Map<dynamic, dynamic>> get _listTree => listTree;
-
-  @override
-  set _listTree(List<Map<dynamic, dynamic>> value) {
-    _$_listTreeAtom.reportWrite(value, super._listTree, () {
-      super._listTree = value;
-    });
-  }
-
-  late final _$_treeAtom =
-      Atom(name: 'AssetControllerBase._tree', context: context);
-
-  List<Tree> get tree {
-    _$_treeAtom.reportRead();
-    return super._tree;
-  }
-
-  @override
-  List<Tree> get _tree => tree;
-
-  @override
-  set _tree(List<Tree> value) {
-    _$_treeAtom.reportWrite(value, super._tree, () {
-      super._tree = value;
+  set treeList(List<Tree> value) {
+    _$treeListAtom.reportWrite(value, super.treeList, () {
+      super.treeList = value;
     });
   }
 
@@ -233,9 +213,35 @@ mixin _$AssetController on AssetControllerBase, Store {
     return _$setAssetStatusAsyncAction.run(() => super.setAssetStatus(value));
   }
 
+  late final _$AssetControllerBaseActionController =
+      ActionController(name: 'AssetControllerBase', context: context);
+
+  @override
+  void setTreeList(List<Tree> value) {
+    final _$actionInfo = _$AssetControllerBaseActionController.startAction(
+        name: 'AssetControllerBase.setTreeList');
+    try {
+      return super.setTreeList(value);
+    } finally {
+      _$AssetControllerBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setExpanded(int index) {
+    final _$actionInfo = _$AssetControllerBaseActionController.startAction(
+        name: 'AssetControllerBase.setExpanded');
+    try {
+      return super.setExpanded(index);
+    } finally {
+      _$AssetControllerBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
   @override
   String toString() {
     return '''
+treeList: ${treeList},
 query: ${query},
 assetStatus: ${assetStatus}
     ''';

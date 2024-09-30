@@ -46,11 +46,18 @@ abstract class AssetControllerBase with Store {
 
   //-----Tree-----
 
-  @readonly
-  var _listTree = <Map>[];
+  @observable
+  var treeList = <Tree>[];
 
-  @readonly
-  var _tree = <Tree>[];
+  @action
+  void setTreeList(List<Tree> value) => treeList = value;
+
+  @action
+  void setExpanded(int index) {
+    print('here');
+    treeList[index].expanded = treeList[index].expanded;
+    treeList = [...treeList];
+  }
 
   //-----Query-----
 
@@ -90,7 +97,7 @@ abstract class AssetControllerBase with Store {
 
   @action
   Future<void> buildTree() async {
-    _tree = await _treeService.buildTree(
+    treeList = await _treeService.buildTree(
       locations: _locationsFilter,
       assets: _assetsFilter,
     );

@@ -22,6 +22,7 @@ class Tree {
   List<Tree>? child;
   List<Tree>? parent;
   List<String>? path;
+  bool expanded;
   Tree({
     this.id,
     this.name,
@@ -34,6 +35,7 @@ class Tree {
     this.treeType,
     this.child,
     this.path,
+    this.expanded = true,
   });
 
   factory Tree.fromLocation(Location location) {
