@@ -244,10 +244,17 @@ class TreeServiceImpl implements TreeService {
     required List<Location> locations,
     required List<Asset> assets,
   }) async {
-    final List<Asset> assetsFilter = [];
-    final List<Location> locationsFilter = [];
+    final List<Asset> assetsFiltered = [];
+    final List<Location> locationsFiltered = [];
     List<Asset> filtersAsset = [];
-    List<Asset> filtersLocation = [];
+    List<Location> filtersLocation = [];
+
+    filtersLocation = locations
+        .where(
+          (loc) => loc.name!.toLowerCase().contains(textQuery!.toLowerCase()),
+        )
+        .toList();
+    locationsFiltered.addAll(filtersLocation);
 
     filtersAsset = switch (optionQuery) {
       AssetStatus.none => assets
@@ -270,22 +277,24 @@ class TreeServiceImpl implements TreeService {
           )
           .toList(),
     };
-    assetsFilter.addAll(filtersAsset);
+    assetsFiltered.addAll(filtersAsset);
     for (var filter in filtersAsset) {
       if (filter.path != null) {
         for (var path in filter.path!) {
           final locs = locations.where((l) => l.id == path);
           final aes = assets.where((l) => l.id == path);
           if (locs.isNotEmpty) {
-            locationsFilter.add(locs.first);
+            locationsFiltered.add(locs.first);
           }
           if (aes.isNotEmpty) {
-            assetsFilter.add(aes.first);
+            assetsFiltered.add(aes.first);
           }
         }
       }
     }
-
-    return (assetsFilter.toSet().toList(), locationsFilter.toSet().toList());
+    return (
+      assetsFiltered.toSet().toList(),
+      locationsFiltered.toSet().toList()
+    );
   }
 }
