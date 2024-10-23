@@ -1,99 +1,99 @@
 # Mobile Software Engineer
 
-### Context
+### Contexto
 
-Assets are essential to the operation of the industry, it can include everything from manufacturing equipment to transportation vehicles to power generation systems. Proper management and maintenance is crucial to ensure that they continue to operate efficiently and effectively. A practical way to visualize the hierarchy of assets is through a tree structure.
+Os ativos são essenciais para a operação industrial, abrangendo desde equipamentos de fabricação até veículos de transporte e sistemas de geração de energia. A gestão e manutenção adequadas são cruciais para garantir que continuem operando de forma eficiente e eficaz. Uma forma prática de visualizar a hierarquia dos ativos é através de uma estrutura em árvore.
 
-### Challenge
+### Desafio
 
-> 📌  **Build an Tree View Application that shows companies Assets** 
-*(The tree is basically composed with components, assets and locations)*
+> 📌  **Construir um aplicativo de visualização em árvore que exiba os ativos de uma empresa** 
+*(A árvore é basicamente composta por componentes, ativos e locais)*
 
-**Components**
+**Componentes**
 
-- Components are the parts that constitute an asset.
-- Components are typically associated with an asset, but the customer **may** want to add components without an asset as a parent **or** with a location as a parent
-- Components typically include **vibration** or **energy** sensors, and they have a **operating** or **alert** status
-- On the tree, components are represented by this icon:
+- Componentes são as partes que constituem um ativo.
+- Componentes são tipicamente associados a um ativo, mas o cliente **pode** querer adicionar componentes sem um ativo pai **ou** com um local como pai
+- Componentes geralmente incluem sensores de  **vibration** ou **energy**, e possuem um status de **operating** ou **alert**
+- Na árvore, os componentes são representados por este ícone:
 ![component](assets/icons/component.png)
     
 
-**Assets/Sub-Assets**
+**Ativos/Sub-Ativos**
 
-- Assets have a set of components
-- Some assets are very large, like a conveyor belt and they **may** contain N sub-assets.
-- Assets are typically associated with a location, but the customer **may** want to add assets without specifying a location as a parent.
-- You can know that an item is a **asset**, if they have another assets or components as children.
-- On the tree, assets are represented by this icon:
+- Os ativos possuem um conjunto de componentes.
+- Alguns ativos são muito grandes, como uma esteira transportadora, e **podem** conter N sub-ativos.
+- Os ativos são tipicamente associados a um local, mas o cliente **pode** querer adicionar ativos sem especificar um local como pai.
+- Você pode saber que um item é um **ativo** se ele tiver outros ativos ou componentes como filhos.
+- Na árvore, os ativos são representados por este ícone:
 ![asset](assets/icons/asset.png)
     
 
-**Locations/Sub-Locations**
+**Locais/Sub-Locais**
 
-- Locations represent the places where the assets are located. For very large locations, the customer may want to split them to keep their hierarchy more organized. Therefore, locations may contain N sub-locations.
-- On the tree, locations are represented by this icon:
+- Locais representam os lugares onde os ativos estão localizados. Para locais muito grandes, o cliente pode querer dividi-los para manter sua hierarquia mais organizada. Portanto, locais podem conter N sub-locais.
+- Na árvore, os locais são representados por este ícone:
 ![location](assets/icons/location.png)
 
-In summary, a tree may like look this:
+Em resumo, uma árvore pode ter esta aparência:
 
 ```
-- Root
+- Raiz
   |
-  └── Location A
+  └── Localização A 
   |     |
-  |     ├── Asset 1
-  |     |     ├── Component A1
-  |     |     ├── Component A2
+  |     ├── Ativo 1
+  |     |     ├── Componente A1
+  |     |     ├── Componente A2
   |     |
-  |     ├── Asset 2
-  |           ├── Component B1
-  |           ├── Component B2
+  |     ├── Ativo 2
+  |           ├── Componente B1
+  |           ├── Componente B2
   |
-  ├── Location B
-  |     ├── Location C
+  ├── Localização B
+  |     ├── Localização C
   |     |     |
-  |     |     ├── Asset 3
-  |     |     |     ├── Component C1
-  |     |     |     ├── Component C2
+  |     |     ├── Ativo 3
+  |     |     |     ├── Componente C1
+  |     |     |     ├── Componente C2
   |     |     |
-  |     |     ├── Component D1
+  |     |     ├── Componente D1
   |
-  └── Component X
+  └── Componente X
 ```
 
-## Features
+## Características
 
-**1. Home Page**
+**1. Página inicial**
 
-- Is the menu for users to navigate between different companies and access  their assets.
+- É o menu para os usuários navegarem entre diferentes empresas e acessarem seus ativos.
 
-**2. Asset Page**
+**2. Página de ativos**
 
-- The Asset Tree is the core feature, offering a visual Tree representation of the company's asset hierarchy.
-- **Sub-Features:**
-    1. **Visualization**
-        - Present a dynamic tree structure displaying components, assets, and locations.
-    2. **Filters**
+- A Árvore de Ativos é o recurso principal, oferecendo uma representação visual em árvore da hierarquia de ativos da empresa.
+- **Sub-recursos:**
+    1. **Visualização**
+        - Apresente uma estrutura de árvore dinâmica exibindo componentes, ativos e locais.
+    2. **Filtros**
         
-        **Text Search**
+        **Pesquisa de texto**
         
-        - Users can search for specific components/assets/locations within the asset hierarchy.
+        - Os usuários podem pesquisar componentes/ativos/locais específicos na hierarquia de ativos.
         
-        **Energy Sensors**
+        **Sensores de energia**
         
-        - Implement a filter to isolate energy sensors within the tree.
+        - Implemente um filtro para isolar sensores de energia dentro da árvore.
         
-        **Critical Sensor Status**
+        **Status crítico do sensor**
         
-        - Integrate a filter to identify assets with critical sensor status.
-    - When the filters are applied, the asset parents **can't** be hidden. The user must know the entire asset path. The items that are not related to the asset path, must be hidden
+        - Integre um filtro para identificar ativos com status crítico de sensor.
+    - Quando os filtros são aplicados, os pais dos ativos **não podem** ser ocultados. O usuário deve conhecer todo o caminho do ativo. Os itens que não estão relacionados ao caminho do ativo devem ser ocultados
 
-### Technical Data
-You have Assets and Locations, you need to relate both of them to build the Tree.
+### Dados Técnicos
+Você tem Ativos e Locais, precisa relacionar ambos para construir a Árvore.
 
-**Locations Collection**
+**Coleção de locais**
 
-Contains only Locations and sub locations (Composed with name, id and a optional parentId)
+Contém apenas locais e sublocais (compostos por nome, id e um parentId opcional)
 ```json
 {
   "id": "65674204664c41001e91ecb4",
@@ -102,7 +102,7 @@ Contains only Locations and sub locations (Composed with name, id and a optional
 }
 ```
 
-If the Location has a parentId, it means it is a sub location
+Se o local tiver um parentId, significa que é um sublocal
 ```json
 {
   "id": "656a07b3f2d4a1001e2144bf",
@@ -111,7 +111,7 @@ If the Location has a parentId, it means it is a sub location
 }
 ```
 
-The visual representation:
+A representação visual:
 ```
 - PRODUCTION AREA - RAW MATERIAL
   |
@@ -119,11 +119,11 @@ The visual representation:
 ```
 
     
-**Assets Collection**
+**Coleção de ativos**
 
-Contains assets, sub assets and components (Composed by name, id and a optional locationId, parentId and sensorType)
+Contém ativos, subativos e componentes (compostos por name, id e um locationId opcional, parentId e sensorType)
 
-If the item has a sensorType, it means it is a component. If it does not have a location or a parentId, it means he is unliked from any asset or location in the tree.
+Se o item tiver um sensorType, significa que é um componente. Se ele não tiver um local ou parentId, significa que ele não é diferente de nenhum ativo ou local na árvore.
 ```json
 {
   "id": "656734821f4664001f296973",
@@ -137,7 +137,7 @@ If the item has a sensorType, it means it is a component. If it does not have a 
 }
 ```
 
-If the item has a location and does not have a sensorId, it means he is an asset with a location as parent, from the location collection
+Se o item possui uma localização e não possui um sensorId, significa que ele é um ativo com uma localização como pai, da coleção de localização
 ```json
 {
   "id": "656a07bbf2d4a1001e2144c2",
@@ -146,7 +146,7 @@ If the item has a location and does not have a sensorId, it means he is an asset
 }
 ```
 
-If the item has a parentId and does not have a sensorId, it means he is an asset with another asset as a parent
+Se o item tiver um parentId e não tiver um sensorId, significa que ele é um ativo com outro ativo como pai
 ```json
 {
   "id": "656a07c3f2d4a1001e2144c5",
@@ -155,7 +155,7 @@ If the item has a parentId and does not have a sensorId, it means he is an asset
 }
 ```
 
-If the item has a sensorType, it means it is a component. If it does have a location or a parentId, it means he has an asset or Location as parent    
+Se o item tiver um sensorType, significa que é um componente. Se tiver um location ou um parentId, significa que ele tem um asset ou Location como pai  
 ```json
 {
   "id": "656a07cdc50ec9001e84167b",
@@ -168,7 +168,7 @@ If the item has a sensorType, it means it is a component. If it does have a loca
 }
 ```
         
-To summarize, this is the visual representation of this items on the Tree
+Para resumir, esta é a representação visual destes itens na Árvore
 ```
 - ROOT
   |
@@ -188,22 +188,25 @@ To summarize, this is the visual representation of this items on the Tree
 ### Design
 [Figma Link](https://www.figma.com/file/IP50SSLkagXsUNWiZj0PjP/%5BCareers%5D-Flutter-Challenge-v2?type=design&node-id=0%3A1&mode=design&t=puUgGuBG9v8leaSQ-1)
 
-> 💡 You don't have to exactly match figma's design! Please, be able to abstract well the presented problem and define it yourself what you consider most important and think with the user's head!
+> 💡 Você não precisa corresponder exatamente ao design do figma! Por favor, consiga abstrair bem o problema apresentado e defina você mesmo o que considera mais importante e pense com a cabeça do usuário!
 
 
 ### Demo API
-The API only works for GET requests, there are 3 endpoints:
+A API só funciona para requisições GET, há 3 endpoints:
 
-- `/companies` - Returns all companies
-- `/companies/:companyId/locations` - Returns all locations of the company
-- `/companies/:companyId/assets` - Returns all assets of the company
+- `/companies` - Retorna todas as empresas
+- `/companies/:companyId/locations` - Retorna todos os locais da empresa
+- `/companies/:companyId/assets` - Retorna todos os ativos da empresa
 
 API: [fake-api.tractian.com](fake-api.tractian.com)
 
-### In the README
-- Include a video demonstrating the app opening for each company and selecting a filter.
-- Describe which points of the project you would improve if you had more time.
+### No README
+- Incluir um vídeo demonstrando a abertura do aplicativo para cada empresa e selecionando um filtro.
+- Descreva quais pontos do projeto você melhoraria se tivesse mais tempo.
 
 ### Extra
-You may use libraries for anything you find essential, **except** for the Asset Tree and the UI.
-In this challenge, performance and usability count as **bonus** points.
+Você pode usar bibliotecas para qualquer coisa que achar essencial, **exceto** para a Asset Tree e a UI.
+Neste desafio, desempenho e usabilidade contam como pontos de **bônus**.
+
+## Versões do README
+[Português BR](./README.md) | [Ingles US](./README-en.md)

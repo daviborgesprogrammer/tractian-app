@@ -207,3 +207,6 @@ API: [fake-api.tractian.com](fake-api.tractian.com)
 ### Extra
 You may use libraries for anything you find essential, **except** for the Asset Tree and the UI.
 In this challenge, performance and usability count as **bonus** points.
+
+## README versions
+[Português BR](./README.md) | [Ingles US](./README-en.md)
